@@ -1,11 +1,17 @@
 import express from "express"
+import router from './routes/router.js';
+import logger from './middleware/logger.js';
+import helmet from 'helmet';
+import limiter from "./middleware/rateLimiter.js"
 const PORT = process.env.PORT;
 
 const app = express();
 
-app.get('/api', (req, res) => {
-    res.send('Server is Up')
-});
+
+app.use(logger);
+app.use(helmet());
+app.use(limiter);
+app.use('/', router);
 
 app.listen(PORT, () =>{
     console.log(`Server is live on port ${PORT}`);
