@@ -10,6 +10,7 @@ const app = express();
 
 app.use(logger);
 app.use(helmet());
+app.use(express.json());
 app.use(limiter);
 app.use('/', router);
 
