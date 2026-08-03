@@ -16,6 +16,19 @@ catch(error){
 export const addPerson = async (req, res) => {
    const { name, phone, email } = req.body;
 
+
+    if (!name){
+       return res.status(400).json({error: 'Name is Missing' });
+    }
+
+    if (!phone){
+       return res.status(400).json({error: 'Phone is Missing' });
+    }
+
+    if (!email){
+        return res.status(400).json({error: 'Email is Missing' });
+    }
+
     try{
         const result = await pool.query(
             'INSERT INTO person (name, phone, email) VALUES ($1, $2, $3) RETURNING *',
