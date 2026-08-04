@@ -60,7 +60,7 @@ catch(error){
 
 export const updateGame = async (req, res) => {
 const { id } = req.params;
-const { name, genre, price } = req.body;
+const { name, genre, price, person_id } = req.body;
 
 let values = [];
 let fields = [];
@@ -84,6 +84,11 @@ if(price !== undefined){
   values.push(price);
   paramIndex ++;
 }
+if(person_id !== undefined){
+  fields.push(`person_id = $${paramIndex}`);
+  values.push(person_id);
+  paramIndex ++;
+}
 if (values.length === 0) {
         return res.status(400).json({ error: 'No values were sent' });
     }
@@ -102,10 +107,6 @@ catch(error){
   console.log(error);
   res.status(500).json({error: 'Data Query Failed'});
 }
-
-
-
-
 
 
 }
