@@ -24,7 +24,7 @@ export const addUser = async (req, res) => {
     try{
 
         const result = await pool.query('INSERT INTO users(user_name, email, password_hash) VALUES ($1, $2, $3) RETURNING *', [username, email, hashedPassword]);
-        res.status(200).json({message: 'User Added Successfully'});
+        res.status(201).json({message: 'User Added Successfully'});
     }
 
     catch(error){
@@ -37,7 +37,8 @@ export const addUser = async (req, res) => {
 export const getUsers = async (req, res) => {
 
     try{
-    const result = await pool.query('SELECT * FROM users')
+    
+    const result = await pool.query('SELECT id, user_name, email FROM users')
     res.status(200).json(result.rows);
 }
 catch(error){
@@ -78,7 +79,9 @@ export const login = async (req, res) => {
         }
 
         const token = jwt.sign(
-            {id: user.id }, process.env.SECRET_KEY, {expiresIn: '1h'}
+            {id: user.id }, 
+            process.env.SECRET_KEY, 
+            {expiresIn: '1h'}
         );
 
        res.status(200).json({ token });
