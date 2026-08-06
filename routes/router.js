@@ -2,14 +2,17 @@ import express from 'express';
 const router = express.Router();
 import {getAllGames, addGame, deleteGame, updateGame} from '../controllers/game_controller.js';
 import {getAllPersons, addPerson, updateperson, deletePerson} from '../controllers/person_controller.js'
-import { addUser, getUsers, login } from '../controllers/users.js';
+import { addUser, getUsers, login, verifyRefreshToken, logOut } from '../controllers/users.js';
 import verifyToken from '../middleware/auth.js'
 
 router.post('/api/login', login);
 router.post('/api/addUser', addUser);
+router.post('/api/refresh', verifyRefreshToken);
 
-
+router.post('/api/logOut', logOut);
 router.use('/', verifyToken);
+
+
 
 router.get('/api/games', getAllGames);
 

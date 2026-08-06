@@ -1,4 +1,5 @@
 import express from "express"
+import cookieParser from "cookie-parser";
 import router from './routes/router.js';
 import logger from './middleware/logger.js';
 import helmet from 'helmet';
@@ -10,6 +11,7 @@ const app = express();
 
 app.use(logger);
 app.use(helmet());
+app.use(cookieParser());
 app.use(express.json());
 app.use(limiter);
 app.use('/', router);

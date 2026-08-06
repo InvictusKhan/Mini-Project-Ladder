@@ -84,7 +84,21 @@ export const login = async (req, res) => {
             {expiresIn: '1h'}
         );
 
-       res.status(200).json({ token });
+       
+
+       const refreshToken = jwt.sign(
+        {id: user.id},
+        process.env.REFRESH_SECRET,
+        {expiresIn: '7d'}
+       )
+
+       await pool.query('UPDATE users SET refresh_token = $1 WHERE id = $2', [refreshToken, user.id]);
+
+       res.cookie('refreshToken', refreshToken, {
+        httpOnly: true,
+        maxAge: 7 * 24 * 60 * 60 *1000,
+       });
+      res.status(200).json({ token });
 
 
 
@@ -95,5 +109,68 @@ catch(error){
 
 }
 
+
+}
+
+
+export const verifyRefreshToken = async (req, res) => {
+
+    
+    const token = req.cookies.refreshToken;
+
+    if(!token){
+        return res.status(401).json({error: 'Token Doesnt Exist'});
+    }
+
+    try{
+
+        const decoded = jwt.verify(token, process.env.REFRESH_SECRET);
+
+        const result = await pool.query('SELECT * FROM users WHERE id = $1', [decoded.id]);
+
+        const user = result.rows[0];
+
+        if(!user || user.refresh_token !== token){
+            return res.status(401).json({error: 'Expired or Invalid Refresh token'});
+        }
+        const newAccessToken = jwt.sign(
+            {id: user.id},
+            process.env.SECRET_KEY,
+            {expiresIn: '1h'}
+        )
+
+    
+        return res.status(200).json({token: newAccessToken});
+
+
+
+  }
+  catch(error){
+    console.log(error);
+    res.status(401).json({error: 'Expired or Invalid Refresh Token'});
+  }
+
+}
+
+export const logOut = async (req, res) => {
+
+    const token = req.cookies.refreshToken;
+
+    if(!token){
+        return res.status(200).json({error: 'Already Logged Out'});
+    }
+
+
+    try{
+    await pool.query('UPDATE users SET refresh_token = NULL WHERE refresh_token = $1', [token]);
+    res.clearCookie("refreshToken");
+
+   return res.status(200).json({message: 'Log out successful'});
+
+}
+catch(error){
+    console.log(error);
+    return res.status(500).json({error: 'Log out failed'})
+}
 
 }
